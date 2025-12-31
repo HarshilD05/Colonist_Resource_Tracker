@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "Catan Resource Tracker",
+  "version": "1.0.0",
+  "description": "Track opponent resources in online Catan games",
+  "icons": {
+    "16": "images/wheat.svg",
+    "48": "images/wheat.svg",
+    "128": "images/wheat.svg"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/wheat.svg",
+      "48": "images/wheat.svg",
+      "128": "images/wheat.svg"
+    }
+  },
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "player.js",
+        "gameLog.js",
+        "resourceTable.js",
+        "logMonitor.js",
+        "content.js"
+      ],
+      "css": ["themes.css", "content.css"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["images/*.svg"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

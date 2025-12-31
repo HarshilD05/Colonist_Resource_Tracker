@@ -1,0 +1,47 @@
+/* Theme Variables for Catan Resource Tracker */
+
+:root {
+  /* Light Mode - Paper-like theme */
+  --bg-primary-light: #faf8f0;
+  --bg-secondary-light: #f5f3e8;
+  --text-primary-light: #2c2416;
+  --text-secondary-light: #5a5244;
+  --border-light: #d4c9b0;
+  --shadow-light: rgba(44, 36, 22, 0.15);
+  --header-light: #e8e0cc;
+  --accent-light: #8b7355;
+  
+  /* Dark Mode - Modern dark theme */
+  --bg-primary-dark: #1e1e1e;
+  --bg-secondary-dark: #2d2d2d;
+  --text-primary-dark: #e0e0e0;
+  --text-secondary-dark: #b0b0b0;
+  --border-dark: #404040;
+  --shadow-dark: rgba(0, 0, 0, 0.5);
+  --header-dark: #252525;
+  --accent-dark: #4a9eff;
+}
+
+/* Default to light mode */
+.catan-tracker-theme {
+  --bg-primary: var(--bg-primary-light);
+  --bg-secondary: var(--bg-secondary-light);
+  --text-primary: var(--text-primary-light);
+  --text-secondary: var(--text-secondary-light);
+  --border-color: var(--border-light);
+  --shadow-color: var(--shadow-light);
+  --header-bg: var(--header-light);
+  --accent-color: var(--accent-light);
+}
+
+/* Dark mode when class is applied */
+.catan-tracker-theme.dark-mode {
+  --bg-primary: var(--bg-primary-dark);
+  --bg-secondary: var(--bg-secondary-dark);
+  --text-primary: var(--text-primary-dark);
+  --text-secondary: var(--text-secondary-dark);
+  --border-color: var(--border-dark);
+  --shadow-color: var(--shadow-dark);
+  --header-bg: var(--header-dark);
+  --accent-color: var(--accent-dark);
+}
