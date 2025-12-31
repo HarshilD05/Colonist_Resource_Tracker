@@ -1,51 +1,54 @@
 # Catan Resource Tracker Extension
 
-A browser extension to track opponent resources in online Catan games.
+Browser extension that automatically tracks opponent resources on colonist.io.
+
+## Supported Site
+
+- **colonist.io** (extension is scoped to this domain)
 
 ## Features
 
-- Track multiple opponents and their resources
-- Manual resource counting (Wheat, Brick, Sheep, Wood, Ore)
-- Persistent storage across browser sessions
-- Clean, intuitive UI
+- Auto-parse colonist.io game log to track resources per player
+- Handles steals, discards, builds, trades, monopoly, and unknown-card deduction
+- Floating draggable/resizable window with light/dark theme toggle
+- Per-player colored names (matching in-game color) and unknown resource tracking
+- Dev card bank counter (remaining out of 25) in the header
+- Compact sidebar button to reopen the tracker
+- Persistent storage across sessions
 
-## Installation
+## Installation (Load Unpacked)
 
-### Chrome/Edge
-1. Open `chrome://extensions/` (or `edge://extensions/`)
-2. Enable "Developer mode" (toggle in top right)
-3. Click "Load unpacked"
-4. Select the extension folder
+### Chrome / Edge
+1. Go to `chrome://extensions/` or `edge://extensions/`
+2. Enable **Developer mode**
+3. Click **Load unpacked**
+4. Select this project folder (with `manifest.json`)
 
-### Firefox
-1. Open `about:debugging#/runtime/this-firefox`
-2. Click "Load Temporary Add-on"
-3. Select the `manifest.json` file
-
-## Development
-
-The extension consists of:
-- `manifest.json` - Extension configuration
-- `popup.html/js` - Extension popup interface
-- `content.js` - Script injected into game pages
-- `background.js` - Background service worker
-- `styles.css` - Popup styling
-- `content.css` - Styles injected into game pages
+### Firefox (temporary load)
+1. Go to `about:debugging#/runtime/this-firefox`
+2. Click **Load Temporary Add-on**
+3. Select `manifest.json`
 
 ## Usage
 
-1. Click the extension icon while playing Catan online
-2. Add players using the "Add Player" button
-3. Manually track resources by clicking +/- buttons
-4. Player data persists across sessions
+1. Open a game on [https://colonist.io](https://colonist.io)
+2. The floating tracker appears; drag/resize as needed
+3. Close the tracker to show the sidebar button; click it to reopen
+4. Watch resources, steals, and dev-card counter update automatically
 
-## Future Enhancements
+## Folder Structure
 
-- Auto-detection of game events
-- Integration with specific Catan platforms
-- Statistics and analysis
-- Export/import tracking data
+- `manifest.json` – Extension config (scoped to colonist.io)
+- `content.js`, `logMonitor.js`, `gameLog.js`, `player.js`, `resourceTable.js` – Core logic and UI
+- `themes.css`, `content.css`, `styles.css` – Styling
+- `images/` – Resource icons (including unknown.svg)
+- `popup.html` – Popup explaining usage
+- `ss/` – Screenshots for README (add your gameplay captures here)
 
-## Notes
+## Game Rules
 
-This extension is currently set up for manual tracking. Once you explain how the specific Catan website works, we can add automated tracking features.
+- For rules and gameplay details, please read the official rules on [colonist.io](https://colonist.io). This extension focuses solely on tracking.
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
