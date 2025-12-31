@@ -40,7 +40,26 @@ function createResourceTable() {
     </div>
     <div class="tracker-footer" id="tracker-footer">
       <div class="dev-footer-row" id="dev-footer-row">
-        <!-- Dev card footer filled dynamically -->
+        <div class="dev-footer-item">
+          <img src="${chrome.runtime.getURL('images/knight.svg')}" alt="Knight" class="dev-footer-icon">
+          <span class="dev-footer-count" data-dev-card-key="knights">${window.devCardBank?.knights ?? 0}</span>
+        </div>
+        <div class="dev-footer-item">
+          <img src="${chrome.runtime.getURL('images/road_building.svg')}" alt="Road Building" class="dev-footer-icon">
+          <span class="dev-footer-count" data-dev-card-key="roadBuilding">${window.devCardBank?.roadBuilding ?? 0}</span>
+        </div>
+        <div class="dev-footer-item">
+          <img src="${chrome.runtime.getURL('images/year_of_plenty.svg')}" alt="Year of Plenty" class="dev-footer-icon">
+          <span class="dev-footer-count" data-dev-card-key="yearOfPlenty">${window.devCardBank?.yearOfPlenty ?? 0}</span>
+        </div>
+        <div class="dev-footer-item">
+          <img src="${chrome.runtime.getURL('images/monopoly.svg')}" alt="Monopoly" class="dev-footer-icon">
+          <span class="dev-footer-count" data-dev-card-key="monopoly">${window.devCardBank?.monopoly ?? 0}</span>
+        </div>
+        <div class="dev-footer-item">
+          <img src="${chrome.runtime.getURL('images/victory_point.svg')}" alt="Victory Point" class="dev-footer-icon">
+          <span class="dev-footer-count" data-dev-card-key="victoryPoints">${window.devCardBank?.victoryPoints ?? 0}</span>
+        </div>
       </div>
     </div>
     <div class="resize-handle" id="tracker-resize-handle"></div>
@@ -309,24 +328,13 @@ function updateDevCardDisplays() {
 
   const footerRow = document.getElementById('dev-footer-row');
   if (footerRow && window.devCardBank) {
-    const footerItems = [
-      { key: 'knights', label: 'Knight', icon: chrome.runtime.getURL('images/knight.svg') },
-      { key: 'roadBuilding', label: 'Road Building', icon: chrome.runtime.getURL('images/road_building.svg') },
-      { key: 'yearOfPlenty', label: 'Year of Plenty', icon: chrome.runtime.getURL('images/year_of_plenty.svg') },
-      { key: 'monopoly', label: 'Monopoly', icon: chrome.runtime.getURL('images/monopoly.svg') },
-      { key: 'victoryPoints', label: 'Victory Point', icon: chrome.runtime.getURL('images/victory_point.svg') }
-    ];
-
-    footerRow.innerHTML = footerItems.map(item => {
-      const remaining = window.devCardBank[item.key] ?? 0;
-      return `
-        <div class="dev-footer-item">
-          <img src="${item.icon}" alt="${item.label}" class="dev-footer-icon">
-          <span class="dev-footer-label">${item.label}</span>
-          <span class="dev-footer-count">${remaining}</span>
-        </div>
-      `;
-    }).join('');
+    const countSpans = footerRow.querySelectorAll('[data-dev-card-key]');
+    countSpans.forEach(span => {
+      const key = span.getAttribute('data-dev-card-key');
+      if (key && key in window.devCardBank) {
+        span.textContent = window.devCardBank[key];
+      }
+    });
   }
 }
 

@@ -134,25 +134,19 @@
 .dev-footer-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  padding: 6px 8px;
+  padding: 0;
   min-width: 0;
   flex: 1;
 }
 
 .dev-footer-icon {
-  width: 20px;
-  height: 20px;
+  width: 28px;
+  height: 28px;
   object-fit: contain;
-}
-
-.dev-footer-label {
-  color: var(--text-primary);
-  font-size: 13px;
-  font-weight: 600;
 }
 
 .dev-footer-count {
