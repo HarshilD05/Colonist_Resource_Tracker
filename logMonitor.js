@@ -241,7 +241,12 @@ async function syncPlayerData(players) {
   console.log('Syncing player data...', playersArray);
   
   try {
-    await chrome.storage.local.set({ players: playersArray });
+    // Get current game ID and store it with players
+    const currentGameId = window.location.hash ? window.location.hash.substring(1) : null;
+    await chrome.storage.local.set({ 
+      players: playersArray,
+      gameId: currentGameId
+    });
     console.log('Player data synced to storage');
     
     // Update resource table display
