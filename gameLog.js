@@ -262,11 +262,13 @@ class GameLog {
   // Parse monopoly card
   parseMonopoly() {
     this.otherPlayersAffected = ['EVERYBODY_ELSE'];
+    this.developmentCard = 'monopoly';
     this.parseResourceGain();
   }
   
   // Parse year of plenty
   parseYearOfPlenty() {
+    this.developmentCard = 'year_of_plenty';
     this.parseResourceGain();
   }
   

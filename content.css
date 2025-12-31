@@ -112,6 +112,55 @@
   background: var(--bg-primary);
 }
 
+.tracker-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--header-bg);
+  border-top: 1px solid var(--border-color);
+  padding: 10px 12px;
+  gap: 8px;
+}
+
+.dev-footer-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.dev-footer-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.dev-footer-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.dev-footer-label {
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.dev-footer-count {
+  margin-left: auto;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
 /* Custom scrollbar */
 .tracker-content::-webkit-scrollbar {
   width: 8px;

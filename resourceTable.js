@@ -38,6 +38,11 @@ function createResourceTable() {
         <div class="empty-state">No players tracked yet...</div>
       </div>
     </div>
+    <div class="tracker-footer" id="tracker-footer">
+      <div class="dev-footer-row" id="dev-footer-row">
+        <!-- Dev card footer filled dynamically -->
+      </div>
+    </div>
     <div class="resize-handle" id="tracker-resize-handle"></div>
   `;
 
@@ -161,15 +166,18 @@ function setupResizeFunctionality(windowElement) {
 function toggleMinimize() {
   const windowElement = document.getElementById('catan-tracker-window');
   const content = windowElement.querySelector('.tracker-content');
+  const footer = windowElement.querySelector('.tracker-footer');
   const minimizeBtn = document.getElementById('tracker-minimize-btn');
   
   if (windowElement.classList.contains('minimized')) {
     windowElement.classList.remove('minimized');
     content.style.display = 'block';
+    if (footer) footer.style.display = 'flex';
     minimizeBtn.textContent = '-';
   } else {
     windowElement.classList.add('minimized');
     content.style.display = 'none';
+    if (footer) footer.style.display = 'none';
     minimizeBtn.textContent = '+';
   }
 }
@@ -254,6 +262,7 @@ function updateResourceTable(players) {
 
   if (uniquePlayers.length === 0) {
     container.innerHTML = '<div class="empty-state">No players tracked yet...</div>';
+    updateDevCardDisplays();
     return;
   }
 
@@ -286,12 +295,39 @@ function updateResourceTable(players) {
       </div>
     `;
   }).join('');
-    // Update dev card counter
+  
+  updateDevCardDisplays();
+
+  console.log('Table updated successfully');
+}
+
+function updateDevCardDisplays() {
   const devCardCounter = document.getElementById('dev-cards-counter');
   if (devCardCounter && window.devCardBank) {
     devCardCounter.textContent = `Dev Cards: ${window.devCardBank.remaining}`;
   }
-    console.log('Table updated successfully');
+
+  const footerRow = document.getElementById('dev-footer-row');
+  if (footerRow && window.devCardBank) {
+    const footerItems = [
+      { key: 'knights', label: 'Knight', icon: chrome.runtime.getURL('images/knight.svg') },
+      { key: 'roadBuilding', label: 'Road Building', icon: chrome.runtime.getURL('images/road_building.svg') },
+      { key: 'yearOfPlenty', label: 'Year of Plenty', icon: chrome.runtime.getURL('images/year_of_plenty.svg') },
+      { key: 'monopoly', label: 'Monopoly', icon: chrome.runtime.getURL('images/monopoly.svg') },
+      { key: 'victoryPoints', label: 'Victory Point', icon: chrome.runtime.getURL('images/victory_point.svg') }
+    ];
+
+    footerRow.innerHTML = footerItems.map(item => {
+      const remaining = window.devCardBank[item.key] ?? 0;
+      return `
+        <div class="dev-footer-item">
+          <img src="${item.icon}" alt="${item.label}" class="dev-footer-icon">
+          <span class="dev-footer-label">${item.label}</span>
+          <span class="dev-footer-count">${remaining}</span>
+        </div>
+      `;
+    }).join('');
+  }
 }
 
 // Legacy function names for backwards compatibility

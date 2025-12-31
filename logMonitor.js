@@ -158,12 +158,25 @@ function applyLogToPlayers(gameLog, players) {
     }
   }
   
-  // Track development card purchases
-  if (gameLog.action === 'bought_dev_card') {
-    if (window.devCardBank && window.devCardBank.remaining > 0) {
-      window.devCardBank.remaining--;
-      console.log(`Dev card bought. Remaining: ${window.devCardBank.remaining}/25`);
-      updated = true;
+  // Track development card plays (bank decreases when a card is used)
+  if (gameLog.action === 'played_dev_card' || gameLog.action === 'monopoly' || gameLog.action === 'year_of_plenty') {
+    const cardType = gameLog.developmentCard || (gameLog.action === 'monopoly' ? 'monopoly' : gameLog.action === 'year_of_plenty' ? 'year_of_plenty' : null);
+    if (window.devCardBank && cardType) {
+      const mapping = {
+        knight: 'knights',
+        road_building: 'roadBuilding',
+        monopoly: 'monopoly',
+        year_of_plenty: 'yearOfPlenty'
+      };
+      const bankKey = mapping[cardType];
+      if (bankKey && window.devCardBank[bankKey] > 0) {
+        window.devCardBank[bankKey]--;
+        if (window.devCardBank.remaining > 0) {
+          window.devCardBank.remaining--;
+        }
+        console.log(`Dev card played (${cardType}). Remaining: ${window.devCardBank.remaining}/25`);
+        updated = true;
+      }
     }
   }
   

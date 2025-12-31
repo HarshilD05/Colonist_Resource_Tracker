@@ -16,11 +16,6 @@ chrome.runtime.onInstalled.addListener(() => {
 
 // Listen for messages from content script or popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'updateData') {
-    // Handle data updates from content script
-    handleDataUpdate(request.data);
-  }
-  
   if (request.action === 'playersUpdated') {
     // Forward player updates to popup
     chrome.runtime.sendMessage(request);
@@ -35,16 +30,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 });
-
-// Handle data updates
-async function handleDataUpdate(data) {
-  const { players = [] } = await chrome.storage.local.get('players');
-  
-  // Process and store the data
-  // This function will be expanded based on your tracking logic
-  
-  await chrome.storage.local.set({ players });
-}
 
 // Optional: Add badge to show active tracking
 function updateBadge(count) {
