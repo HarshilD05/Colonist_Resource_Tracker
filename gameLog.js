@@ -69,6 +69,10 @@ class GameLog {
       this.action = 'received_resources';
       this.parseResourceGain();
     }
+    else if (lowerText.includes('gave') && lowerText.includes('to bank') && lowerText.includes('and got')) {
+      this.action = 'bank_trade';
+      this.parseBankTrade();
+    }
     else if (lowerText.includes('gave') && lowerText.includes('and got') && lowerText.includes('from')) {
       this.action = 'completed_trade';
       this.parseTrade();
@@ -145,11 +149,13 @@ class GameLog {
   
   // Parse resource gain: "Player got [resource images]"
   parseResourceGain() {
-    const images = this.messageElement.querySelectorAll('img[alt]');
-    console.log(`parseResourceGain: Found ${images.length} images`);
+    const html = this.messageElement.innerHTML;
+    console.log(`parseResourceGain: Parsing HTML`);
     
-    images.forEach(img => {
-      const alt = img.alt.toLowerCase();
+    // Extract all alt="" attributes from the HTML
+    const altMatches = html.matchAll(/alt="([^"]+)"/gi);
+    for (const match of altMatches) {
+      const alt = match[1];
       console.log(`  Image alt: "${alt}"`);
       const resourceType = identifyResourceFromAlt(alt);
       
@@ -159,7 +165,7 @@ class GameLog {
       } else {
         console.log(`  Could not identify resource type`);
       }
-    });
+    }
     
     console.log(`  Total resources gained:`, this.resourcesGained);
   }
@@ -167,7 +173,7 @@ class GameLog {
   // Parse trade: "Player gave [resource] and got [resource] from OtherPlayer"
   parseTrade() {
     const text = this.messageElement.textContent;
-    const images = this.messageElement.querySelectorAll('img[alt]');
+    const html = this.messageElement.innerHTML;
     
     // Find "from" to identify other player
     const fromMatch = text.match(/from\s+(\w+)/i);
@@ -175,24 +181,83 @@ class GameLog {
       this.otherPlayersAffected.push(fromMatch[1]);
     }
     
-    // Parse resources - first image(s) are given (lost), after "got" are received (gained)
-    const gaveIndex = text.toLowerCase().indexOf('gave');
-    const gotIndex = text.toLowerCase().indexOf('and got');
+    // Find positions of "gave" and "got" in the HTML
+    const gaveIndex = html.toLowerCase().indexOf('gave');
+    const gotIndex = html.toLowerCase().indexOf('got');
     
-    images.forEach(img => {
-      const imgPosition = text.indexOf(img.alt);
-      const resourceType = identifyResourceFromAlt(img.alt);
-      
+    if (gaveIndex === -1 || gotIndex === -1) {
+      console.warn('Could not find "gave" or "got" in trade message');
+      return;
+    }
+    
+    // Extract HTML sections
+    const gaveToGotSection = html.substring(gaveIndex, gotIndex);
+    const afterGotSection = html.substring(gotIndex);
+    
+    // Extract all alt="" attributes from the "gave" to "got" section (resources lost)
+    const lostAltMatches = gaveToGotSection.matchAll(/alt="([^"]+)"/gi);
+    for (const match of lostAltMatches) {
+      const alt = match[1];
+      const resourceType = identifyResourceFromAlt(alt);
       if (resourceType) {
-        if (imgPosition > gaveIndex && imgPosition < gotIndex) {
-          // Resource was given (lost)
-          this.resourcesLost[resourceType] = (this.resourcesLost[resourceType] || 0) + 1;
-        } else if (imgPosition > gotIndex) {
-          // Resource was received (gained)
-          this.resourcesGained[resourceType] = (this.resourcesGained[resourceType] || 0) + 1;
-        }
+        this.resourcesLost[resourceType] = (this.resourcesLost[resourceType] || 0) + 1;
+        console.log(`  Trade lost: ${resourceType} (alt: "${alt}")`);
       }
-    });
+    }
+    
+    // Extract all alt="" attributes from after "got" section (resources gained)
+    const gainedAltMatches = afterGotSection.matchAll(/alt="([^"]+)"/gi);
+    for (const match of gainedAltMatches) {
+      const alt = match[1];
+      const resourceType = identifyResourceFromAlt(alt);
+      if (resourceType) {
+        this.resourcesGained[resourceType] = (this.resourcesGained[resourceType] || 0) + 1;
+        console.log(`  Trade gained: ${resourceType} (alt: "${alt}")`);
+      }
+    }
+  }
+  
+  // Parse bank trade: "Player gave [resource] to bank and got [resource]"
+  parseBankTrade() {
+    const html = this.messageElement.innerHTML;
+    
+    this.otherPlayersAffected.push('BANK');
+    
+    // Find positions of "gave" and "to bank" and "got" in the HTML
+    const gaveIndex = html.toLowerCase().indexOf('gave');
+    const toBankIndex = html.toLowerCase().indexOf('to bank');
+    const gotIndex = html.toLowerCase().indexOf('got');
+    
+    if (gaveIndex === -1 || toBankIndex === -1 || gotIndex === -1) {
+      console.warn('Could not find "gave", "to bank", or "got" in bank trade message');
+      return;
+    }
+    
+    // Extract HTML sections
+    const gaveToToBankSection = html.substring(gaveIndex, toBankIndex);
+    const afterGotSection = html.substring(gotIndex);
+    
+    // Extract all alt="" attributes from the "gave" to "to bank" section (resources lost)
+    const lostAltMatches = gaveToToBankSection.matchAll(/alt="([^"]+)"/gi);
+    for (const match of lostAltMatches) {
+      const alt = match[1];
+      const resourceType = identifyResourceFromAlt(alt);
+      if (resourceType) {
+        this.resourcesLost[resourceType] = (this.resourcesLost[resourceType] || 0) + 1;
+        console.log(`  Bank trade lost: ${resourceType} (alt: "${alt}")`);
+      }
+    }
+    
+    // Extract all alt="" attributes from after "got" section (resources gained)
+    const gainedAltMatches = afterGotSection.matchAll(/alt="([^"]+)"/gi);
+    for (const match of gainedAltMatches) {
+      const alt = match[1];
+      const resourceType = identifyResourceFromAlt(alt);
+      if (resourceType) {
+        this.resourcesGained[resourceType] = (this.resourcesGained[resourceType] || 0) + 1;
+        console.log(`  Bank trade gained: ${resourceType} (alt: "${alt}")`);
+      }
+    }
   }
   
   // Parse trade offer (no immediate resource changes)
@@ -203,17 +268,20 @@ class GameLog {
   // Parse stealing: "Player stole [resource] from you/OtherPlayer"
   parseSteal() {
     const text = this.messageElement.textContent;
-    const images = this.messageElement.querySelectorAll('img[alt]');
+    const html = this.messageElement.innerHTML;
     
-    // Check if we can see the resource (will have an image)
+    // Extract all alt="" attributes to check for resources
+    const altMatches = html.matchAll(/alt="([^"]+)"/gi);
     let hasResourceImage = false;
-    images.forEach(img => {
-      const resourceType = identifyResourceFromAlt(img.alt);
+    
+    for (const match of altMatches) {
+      const alt = match[1];
+      const resourceType = identifyResourceFromAlt(alt);
       if (resourceType) {
         this.resourcesGained[resourceType] = (this.resourcesGained[resourceType] || 0) + 1;
         hasResourceImage = true;
       }
-    });
+    }
     
     // If no resource image, it's an unknown card
     if (!hasResourceImage) {
@@ -236,13 +304,17 @@ class GameLog {
   
   // Parse discard: "Player discarded [resource images]"
   parseDiscard() {
-    const images = this.messageElement.querySelectorAll('img[alt]');
-    images.forEach(img => {
-      const resourceType = identifyResourceFromAlt(img.alt);
+    const html = this.messageElement.innerHTML;
+    
+    // Extract all alt="" attributes from the HTML
+    const altMatches = html.matchAll(/alt="([^"]+)"/gi);
+    for (const match of altMatches) {
+      const alt = match[1];
+      const resourceType = identifyResourceFromAlt(alt);
       if (resourceType) {
         this.resourcesLost[resourceType] = (this.resourcesLost[resourceType] || 0) + 1;
       }
-    });
+    }
   }
   
   // Parse development card usage
