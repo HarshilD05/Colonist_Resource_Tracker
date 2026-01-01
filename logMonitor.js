@@ -1,8 +1,19 @@
 // Log Monitoring - Watches game logs and processes events by data-index
 
 let logObserver = null;
-let processedLogs = new Map(); // Map of dataIndex -> GameLog
-let highestProcessedIndex = -1;
+// Initialize currLogIdx - will be restored from storage if available
+if (typeof window.currLogIdx === 'undefined') {
+  window.currLogIdx = 0;
+}
+
+// Local reference to the global currLogIdx for easier access
+function getCurrLogIdx() {
+  return window.currLogIdx || 0;
+}
+
+function setCurrLogIdx(value) {
+  window.currLogIdx = value;
+}
 
 // Find the virtual scroller element
 function findVirtualScroller() {
@@ -21,7 +32,7 @@ function processExistingLogs(container, players) {
     }
   });
   
-  console.log(`Processed ${processedLogs.size} existing logs`);
+  console.log(`Finished processing existing logs. Current log index: ${getCurrLogIdx()}`);
 }
 
 // Observe game logs for new messages
@@ -55,21 +66,18 @@ function observeGameLogs(container, players) {
 
 // Process a log by its data-index
 function processLogByIndex(dataIndex, containerElement, players) {
-  // Skip if already processed
-  if (processedLogs.has(dataIndex)) {
+  const currLogIdx = getCurrLogIdx();
+  
+  // Skip if already processed (data-index less than current index)
+  if (dataIndex < currLogIdx) {
     return;
   }
   
   // Create GameLog object
   const gameLog = new GameLog(dataIndex, containerElement);
   
-  // Store in our processed logs
-  processedLogs.set(dataIndex, gameLog);
-  
-  // Update highest processed index
-  if (dataIndex > highestProcessedIndex) {
-    highestProcessedIndex = dataIndex;
-  }
+  // Update current log index to the next one
+  setCurrLogIdx(dataIndex + 1);
   
   console.log(gameLog.toString());
   
@@ -243,11 +251,13 @@ async function syncPlayerData(players) {
   try {
     // Get current game ID and store it with players
     const currentGameId = window.location.hash ? window.location.hash.substring(1) : null;
+    const currLogIdx = getCurrLogIdx();
     await chrome.storage.local.set({ 
       players: playersArray,
-      gameId: currentGameId
+      gameId: currentGameId,
+      currLogIdx: currLogIdx
     });
-    console.log('Player data synced to storage');
+    console.log(`Player data synced to storage (currLogIdx: ${currLogIdx})`);
     
     // Update resource table display
     console.log('Updating resource table UI...');
@@ -283,8 +293,7 @@ function startLogMonitoring(players) {
 
 // Clear processed logs (useful for debugging or reset)
 function clearProcessedLogs() {
-  processedLogs.clear();
-  highestProcessedIndex = -1;
-  console.log('Processed logs cleared');
+  setCurrLogIdx(0);
+  console.log('Processed logs cleared - currLogIdx reset to 0');
 }
 

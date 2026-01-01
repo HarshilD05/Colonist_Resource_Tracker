@@ -72,12 +72,18 @@ async function loadPlayersFromStorage(currentGameId) {
   console.log('Loading players from storage...');
   
   try {
-    const data = await chrome.storage.local.get(['players', 'gameId']);
+    const data = await chrome.storage.local.get(['players', 'gameId', 'currLogIdx']);
     
     // Check if stored game ID matches current game ID
     if (data.gameId !== currentGameId) {
       console.log(`Game ID mismatch. Stored: ${data.gameId}, Current: ${currentGameId}`);
       return false;
+    }
+    
+    // Restore currLogIdx to avoid reparsing old logs
+    if (data.currLogIdx !== undefined) {
+      window.currLogIdx = data.currLogIdx;
+      console.log(`Restored currLogIdx from storage: ${window.currLogIdx}`);
     }
     
     if (data.players && data.players.length > 0) {
